@@ -128,6 +128,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
+    <ClCompile Include="sfc_cpu.c" />
+    <ClCompile Include="sfc_famicom.c" />
+    <ClCompile Include="sfc_mapper.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="nestest.nes">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sfc_cpu.h" />
+    <ClInclude Include="sfc_famicom.h" />
+    <ClInclude Include="sfc_rom.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

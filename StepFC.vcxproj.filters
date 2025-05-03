@@ -18,5 +18,30 @@
     <ClCompile Include="main.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="sfc_famicom.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sfc_mapper.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sfc_cpu.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="nestest.nes">
+      <Filter>资源文件</Filter>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sfc_rom.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sfc_famicom.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sfc_cpu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
