@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
+    <ClCompile Include="sfc_6502.c" />
     <ClCompile Include="sfc_cpu.c" />
     <ClCompile Include="sfc_famicom.c" />
     <ClCompile Include="sfc_mapper.c" />
@@ -138,6 +139,7 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="sfc_6502.h" />
     <ClInclude Include="sfc_cpu.h" />
     <ClInclude Include="sfc_famicom.h" />
     <ClInclude Include="sfc_rom.h" />

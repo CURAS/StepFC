@@ -1,6 +1,28 @@
 #include <assert.h>
+#include <string.h>
 #include "sfc_cpu.h"
 #include "sfc_famicom.h"
+#include "sfc_6502.h"
+
+extern inline void sfc_btoh(char[], uint8_t);
+
+void sfc_fc_disassembly(uint16_t address, const sfc_famicom_t* famicom, char buf[SFC_DISASSEMBLY_BUF_LEN2])
+{
+	sfc_6502_code_t code;
+	code.data = 0;
+	code.op = sfc_read_cpu_address(address, famicom);
+	code.a1 = sfc_read_cpu_address(address + 1, famicom);
+	code.a2 = sfc_read_cpu_address(address + 2, famicom);
+
+	memset(buf, ' ', SFC_DISASSEMBLY_BUF_LEN2);
+	buf[SFC_DISASSEMBLY_BUF_LEN2 - 1] = '\0';
+
+	buf[0] = '$';
+	sfc_btoh(buf + 1, address >> 8);
+	sfc_btoh(buf + 3, address & 0xFF);
+
+	sfc_6502_disassembly(code, buf + 8);
+}
 
 uint8_t sfc_read_cpu_address(uint16_t address, const sfc_famicom_t* famicom)
 {

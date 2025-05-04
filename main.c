@@ -23,8 +23,20 @@ int main(int argc, char const* argv[])
 		uint16_t v2 = sfc_read_cpu_address(SFC_VERCTOR_IRQBRK + 0, &famicom);
 		v2 |= sfc_read_cpu_address(SFC_VERCTOR_IRQBRK + 1, &famicom) << 8;
 
-		printf("ROM: NMI: $%04X  RESET: $%04X  IRQ/BRK: $%04X\n",
-			v0, v1, v2);
+		char b0[SFC_DISASSEMBLY_BUF_LEN2];
+		char b1[SFC_DISASSEMBLY_BUF_LEN2];
+		char b2[SFC_DISASSEMBLY_BUF_LEN2];
+
+		sfc_fc_disassembly(v0, &famicom, b0);
+		sfc_fc_disassembly(v1, &famicom, b1);
+		sfc_fc_disassembly(v2, &famicom, b2);
+
+		printf(
+			"NMI:     %s\n"
+			"RESET:   %s\n"
+			"IRQ/BRK: %s\n",
+			b0, b1, b2
+		);
 
 		sfc_famicom_uninit(&famicom);
 	}
