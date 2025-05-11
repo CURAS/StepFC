@@ -11,8 +11,10 @@ void sfc_fc_disassembly(uint16_t address, const sfc_famicom_t* famicom, char buf
 	sfc_6502_code_t code;
 	code.data = 0;
 	code.op = sfc_read_cpu_address(address, famicom);
-	code.a1 = sfc_read_cpu_address(address + 1, famicom);
-	code.a2 = sfc_read_cpu_address(address + 2, famicom);
+	if (inslen[code.op] >= 2)
+		code.a1 = sfc_read_cpu_address(address + 1, famicom);
+	if (inslen[code.op] >= 3)
+		code.a2 = sfc_read_cpu_address(address + 2, famicom);
 
 	memset(buf, ' ', SFC_DISASSEMBLY_BUF_LEN2);
 	buf[SFC_DISASSEMBLY_BUF_LEN2 - 1] = '\0';

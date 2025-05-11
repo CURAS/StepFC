@@ -10,6 +10,7 @@ typedef struct {
 	uint8_t flags7;
 	uint8_t reserved[8];
 } sfc_rom_header_t;
+#pragma pack()
 
 typedef struct {
 	uint8_t count_prgrom_16kb;
@@ -30,16 +31,14 @@ typedef struct {
 	uint8_t* chr_rom;
 } sfc_rom_t;
 
-// flags6 bitflags
-enum {
+enum flags6_bit {
 	SFC_NES_VMIRROR = 0x01,
 	SFC_NES_SAVERAM = 0x02,
 	SFC_NES_TRAINER = 0x04,
 	SFC_NES_4SCREEN = 0x08
 };
 
-// flags7 bitflags
-enum {
+enum flags7_bit {
 	SFC_NES_VS_UNISYSTEM = 0x01,
 	SFC_NES_Playchoice10 = 0x02
 };

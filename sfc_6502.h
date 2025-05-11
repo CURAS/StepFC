@@ -1,5 +1,47 @@
 #pragma once
 #include <stdint.h>
+#include "sfc_famicom.h"
+#include "sfc_cpu.h"
+
+#define SFC_REG (famicom->registers)
+#define SFC_PC (SFC_REG.pc)
+#define SFC_A (SFC_REG.a)
+#define SFC_X (SFC_REG.x)
+#define SFC_Y (SFC_REG.y)
+#define SFC_S (SFC_REG.s)
+#define SFC_P (SFC_REG.p)
+
+#define SFC_READ(a) sfc_read_cpu_address(a, famicom)
+#define SFC_WRITE(a, v) sfc_write_cpu_address(a, v, famicom)
+#define SFC_PUSH(v) sfc_write_cpu_address(0x100 + SFC_S--, v, famicom)
+#define SFC_POP() sfc_read_cpu_address(0x100 + ++SFC_S, famicom)
+
+#define SFC_CF_SET (SFC_P |= (uint8_t)SFC_FLAG_C)
+#define SFC_ZF_SET (SFC_P |= (uint8_t)SFC_FLAG_Z)
+#define SFC_IF_SET (SFC_P |= (uint8_t)SFC_FLAG_I)
+#define SFC_DF_SET (SFC_P |= (uint8_t)SFC_FLAG_D)
+#define SFC_BF_SET (SFC_P |= (uint8_t)SFC_FLAG_B)
+#define SFC_RF_SET (SFC_P |= (uint8_t)SFC_FLAG_R)
+#define SFC_VF_SET (SFC_P |= (uint8_t)SFC_FLAG_V)
+#define SFC_SF_SET (SFC_P |= (uint8_t)SFC_FLAG_S)
+
+#define SFC_CF_CLR (SFC_P &= ~(uint8_t)SFC_FLAG_C)
+#define SFC_ZF_CLR (SFC_P &= ~(uint8_t)SFC_FLAG_Z)
+#define SFC_IF_CLR (SFC_P &= ~(uint8_t)SFC_FLAG_I)
+#define SFC_DF_CLR (SFC_P &= ~(uint8_t)SFC_FLAG_D)
+#define SFC_BF_CLR (SFC_P &= ~(uint8_t)SFC_FLAG_B)
+#define SFC_RF_CLR (SFC_P &= ~(uint8_t)SFC_FLAG_R)
+#define SFC_VF_CLR (SFC_P &= ~(uint8_t)SFC_FLAG_V)
+#define SFC_SF_CLR (SFC_P &= ~(uint8_t)SFC_FLAG_S)
+
+#define SFC_CF_CHK (SFC_P & (uint8_t)SFC_FLAG_C)
+#define SFC_ZF_CHK (SFC_P & (uint8_t)SFC_FLAG_Z)
+#define SFC_IF_CHK (SFC_P & (uint8_t)SFC_FLAG_I)
+#define SFC_DF_CHK (SFC_P & (uint8_t)SFC_FLAG_D)
+#define SFC_BF_CHK (SFC_P & (uint8_t)SFC_FLAG_B)
+#define SFC_RF_CHK (SFC_P & (uint8_t)SFC_FLAG_R)
+#define SFC_VF_CHK (SFC_P & (uint8_t)SFC_FLAG_V)
+#define SFC_SF_CHK (SFC_P & (uint8_t)SFC_FLAG_S)
 
 enum {
 	SFC_DISASSEMBLY_BUF_LEN = 32
@@ -26,10 +68,27 @@ enum sfc_6502_addressing_mode {
 	SFC_AM_ZPG,
 	SFC_AM_ZPX,
 	SFC_AM_ZPY,
+	SFC_AM_IND,
 	SFC_AM_INX,
 	SFC_AM_INY,
-	SFC_AM_IND,
 	SFC_AM_REL,
+};
+
+static const uint8_t inslen[14] = {
+	1,
+	1,
+	1,
+	2,
+	3,
+	3,
+	3,
+	2,
+	2,
+	2,
+	3,
+	2,
+	2,
+	2,
 };
 
 enum sfc_6502_instruction {
@@ -134,3 +193,5 @@ static const uint8_t opmodes[256] = {
 };
 
 void sfc_6502_disassembly(sfc_6502_code_t, char[SFC_DISASSEMBLY_BUF_LEN]);
+
+void sfc_cpu_execute_one(sfc_famicom_t*);

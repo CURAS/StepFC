@@ -16,32 +16,13 @@ int main(int argc, char const* argv[])
 			famicom.rom.info.count_chrrom_8kb,
 			famicom.rom.info.mapper_number);
 
-		uint16_t v0 = sfc_read_cpu_address(SFC_VERCTOR_NMI + 0, &famicom);
-		v0 |= sfc_read_cpu_address(SFC_VERCTOR_NMI + 1, &famicom) << 8;
-		uint16_t v1 = sfc_read_cpu_address(SFC_VERCTOR_RESET + 0, &famicom);
-		v1 |= sfc_read_cpu_address(SFC_VERCTOR_RESET + 1, &famicom) << 8;
-		uint16_t v2 = sfc_read_cpu_address(SFC_VERCTOR_IRQBRK + 0, &famicom);
-		v2 |= sfc_read_cpu_address(SFC_VERCTOR_IRQBRK + 1, &famicom) << 8;
-
-		char b0[SFC_DISASSEMBLY_BUF_LEN2];
-		char b1[SFC_DISASSEMBLY_BUF_LEN2];
-		char b2[SFC_DISASSEMBLY_BUF_LEN2];
-
-		sfc_fc_disassembly(v0, &famicom, b0);
-		sfc_fc_disassembly(v1, &famicom, b1);
-		sfc_fc_disassembly(v2, &famicom, b2);
-
-		printf(
-			"NMI:     %s\n"
-			"RESET:   %s\n"
-			"IRQ/BRK: %s\n",
-			b0, b1, b2
-		);
+		do {
+			for (int i = 0; i < 1000; ++i)
+				sfc_cpu_execute_one(&famicom);
+		} while (getchar() != -1);
 
 		sfc_famicom_uninit(&famicom);
 	}
-
-	getchar();
 
 	return 0;
 }
