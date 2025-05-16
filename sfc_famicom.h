@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "sfc_rom.h"
 #include "sfc_cpu.h"
+#include "sfc_ppu.h"
 
 struct sfc_famicom;
 typedef struct sfc_famicom sfc_famicom_t;
@@ -31,6 +32,7 @@ struct sfc_famicom {
 	void* argument;
 	sfc_interface_t interfaces;
 	sfc_mapper_t mapper;
+	sfc_ppu_t ppu;
 	sfc_cpu_register_t registers;
 	uint8_t* prg_banks[0x10000 >> 13];
 	uint8_t save_memory[8 * 1024];
@@ -42,3 +44,7 @@ sfc_ecode sfc_famicom_init(sfc_famicom_t*, void*, const sfc_interface_t*);
 sfc_ecode sfc_famicom_uninit(sfc_famicom_t*);
 
 sfc_ecode sfc_famicom_reset(sfc_famicom_t*);
+
+sfc_ecode sfc_load_new_rom(sfc_famicom_t*);
+
+void sfc_do_vblank(sfc_famicom_t*);

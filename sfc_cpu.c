@@ -1,12 +1,13 @@
 #include <assert.h>
 #include <string.h>
 #include "sfc_cpu.h"
+#include "sfc_ppu.h"
 #include "sfc_famicom.h"
 #include "sfc_6502.h"
 
 extern inline void sfc_btoh(char[], uint8_t);
 
-void sfc_fc_disassembly(uint16_t address, const sfc_famicom_t* famicom, char buf[SFC_DISASSEMBLY_BUF_LEN2])
+void sfc_fc_disassembly(uint16_t address, sfc_famicom_t* famicom, char buf[SFC_DISASSEMBLY_BUF_LEN2])
 {
 	sfc_6502_code_t code;
 	code.data = 0;
@@ -26,17 +27,19 @@ void sfc_fc_disassembly(uint16_t address, const sfc_famicom_t* famicom, char buf
 	sfc_6502_disassembly(code, buf + 8);
 }
 
-uint8_t sfc_read_cpu_address(uint16_t address, const sfc_famicom_t* famicom)
+uint8_t sfc_read_cpu_address(uint16_t address, sfc_famicom_t* famicom)
 {
 	switch (address >> 13)
 	{
 	case 0:
 		return famicom->main_memory[address & (uint16_t)0x07FF];
 	case 1:
-		assert(!"NOT IMPL");
-		return 0;
+		return sfc_read_ppu_register_via_cpu(address, &famicom->ppu);
 	case 2:
-		assert(!"NOT IMPL");
+		if (address < 0x4020)
+			;
+		else
+			assert(!"NOT IMPL");
 		return 0;
 	case 3:
 		return famicom->save_memory[address & (uint16_t)0x1FFF];
@@ -59,10 +62,13 @@ void sfc_write_cpu_address(uint16_t address, uint8_t data, sfc_famicom_t* famico
 		famicom->main_memory[address & (uint16_t)0x07FF] = data;
 		return;
 	case 1:
-		assert(!"NOT IMPL");
+		sfc_write_ppu_register_via_cpu(address, data, &famicom->ppu);
 		return;
 	case 2:
-		assert(!"NOT IMPL");
+		if (address < 0x4020)
+			;
+		else
+			assert(!"NOT IMPL");
 		return;
 	case 3:
 		famicom->save_memory[address & (uint16_t)0x1FFF] = data;

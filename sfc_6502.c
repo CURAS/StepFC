@@ -311,10 +311,12 @@ void sfc_operation_BRK(uint16_t address, sfc_famicom_t* famicom)
 	++SFC_PC;
 	SFC_PUSH(SFC_PC >> 8);
 	SFC_PUSH(SFC_PC & 0xFF);
-	SFC_PUSH(SFC_P);
+	uint8_t data = SFC_P;
+	data |= (SFC_FLAG_R | SFC_FLAG_B);
+	SFC_PUSH(data);
 	SFC_IF_SET;
-	uint16_t irql = SFC_READ(SFC_VERCTOR_IRQBRK);
-	uint16_t irqh = SFC_READ(SFC_VERCTOR_IRQBRK + 1);
+	uint16_t irql = SFC_READ(SFC_VECTOR_IRQBRK);
+	uint16_t irqh = SFC_READ(SFC_VECTOR_IRQBRK + 1);
 	SFC_PC = irql | (irqh << 8);
 }
 void sfc_operation_BVC(uint16_t address, sfc_famicom_t* famicom)
@@ -526,10 +528,8 @@ void sfc_operation_PLA(uint16_t address, sfc_famicom_t* famicom)
 }
 void sfc_operation_PLP(uint16_t address, sfc_famicom_t* famicom)
 {
-	uint8_t data = SFC_POP();
-	data &= ~(SFC_FLAG_B | SFC_FLAG_R);
-	data |= (SFC_P & (SFC_FLAG_B | SFC_FLAG_R));
-	SFC_P = data;
+	SFC_P = SFC_POP();
+	SFC_BF_CLR;
 }
 void sfc_operation_RLA(uint16_t address, sfc_famicom_t* famicom)
 {
@@ -762,4 +762,15 @@ void sfc_cpu_execute_one(sfc_famicom_t* famicom)
 		OP(E0, CPX, IMM)  OP(E1, SBC, INX)  OP(E2, NOP, IMM)  OP(E3, ISC, INX)  OP(E4, CPX, ZPG)  OP(E5, SBC, ZPG)  OP(E6, INC, ZPG)  OP(E7, ISC, ZPG)  OP(E8, INX, IMP)  OP(E9, SBC, IMM)  OP(EA, NOP, IMP)  OP(EB, SBC, IMM)  OP(EC, CPX, ABS)  OP(ED, SBC, ABS)  OP(EE, INC, ABS)  OP(EF, ISC, ABS)
 		OP(F0, BEQ, REL)  OP(F1, SBC, INY)  OP(F2, STP, UNK)  OP(F3, ISC, INY)  OP(F4, NOP, ZPX)  OP(F5, SBC, ZPX)  OP(F6, INC, ZPX)  OP(F7, ISC, ZPX)  OP(F8, SED, IMP)  OP(F9, SBC, ABY)  OP(FA, NOP, IMP)  OP(FB, ISC, ABY)  OP(FC, NOP, ABX)  OP(FD, SBC, ABX)  OP(FE, INC, ABX)  OP(FF, ISC, ABX)
 	}
+}
+
+void sfc_cpu_nmi(sfc_famicom_t* famicom)
+{
+	SFC_PUSH(SFC_PC >> 8);
+	SFC_PUSH(SFC_PC & 0xFF);
+	SFC_PUSH(SFC_P);
+	SFC_IF_SET;
+	uint16_t nmil = SFC_READ(SFC_VECTOR_NMI);
+	uint16_t nmih = SFC_READ(SFC_VECTOR_NMI + 1);
+	SFC_PC = nmil | (nmih << 8);
 }

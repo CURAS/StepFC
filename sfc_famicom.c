@@ -1,5 +1,6 @@
 #include <string.h>
 #include "sfc_famicom.h"
+#include "sfc_6502.h"
 
 extern sfc_ecode sfc_load_mapper(sfc_famicom_t*, uint8_t);
 
@@ -22,10 +23,12 @@ static sfc_interface_t log_interface = {
 
 sfc_ecode sfc_famicom_init(sfc_famicom_t* famicom, void* argument, const sfc_interface_t* interfaces)
 {
+	memset(famicom, 0, sizeof(sfc_famicom_t));
+
 	famicom->argument = argument;
 
 	if (interfaces == NULL)
-		famicom->interfaces = log_interface;
+		famicom->interfaces = default_interface;
 
 	memset(&famicom->prg_banks, 0, (0x10000 >> 13) * sizeof(uint8_t*));
 	famicom->prg_banks[0] = famicom->main_memory;
@@ -42,22 +45,47 @@ sfc_ecode sfc_famicom_uninit(sfc_famicom_t* famicom)
 
 sfc_ecode sfc_famicom_reset(sfc_famicom_t* famicom)
 {
+	memset(&famicom->ppu, 0, sizeof(famicom->ppu));
+
 	sfc_ecode code = famicom->mapper.reset(famicom);
 	if (code != SFC_ERROR_OK)
 		return code;
 
-	const uint8_t pcl = sfc_read_cpu_address(SFC_VERCTOR_RESET + 0, famicom);
-	const uint8_t pch = sfc_read_cpu_address(SFC_VERCTOR_RESET + 1, famicom);
+	const uint8_t pcl = sfc_read_cpu_address(SFC_VECTOR_RESET + 0, famicom);
+	const uint8_t pch = sfc_read_cpu_address(SFC_VECTOR_RESET + 1, famicom);
 	famicom->registers.pc = (uint16_t)pcl | (uint16_t)(pch << 8);
 	famicom->registers.a = 0;
 	famicom->registers.x = 0;
 	famicom->registers.y = 0;
-	famicom->registers.p = SFC_FLAG_I | SFC_FLAG_R;
+	famicom->registers.p = SFC_FLAG_I | SFC_FLAG_B | SFC_FLAG_R;
 	famicom->registers.s = 0xfd;
 
-#if 1
-	famicom->registers.pc = 0xC000;
-#endif
+	if (famicom->rom.info.four_screen_flag)
+	{
+		famicom->ppu.banks[8] = famicom->ppu.video_memory;
+		famicom->ppu.banks[9] = famicom->ppu.video_memory + 1024;
+		famicom->ppu.banks[10] = famicom->ppu.video_memory_ex;
+		famicom->ppu.banks[11] = famicom->ppu.video_memory_ex + 1024;
+	}
+	else if (famicom->rom.info.mirror_flag)
+	{
+		famicom->ppu.banks[8] = famicom->ppu.video_memory;
+		famicom->ppu.banks[9] = famicom->ppu.video_memory + 1024;
+		famicom->ppu.banks[10] = famicom->ppu.video_memory;
+		famicom->ppu.banks[11] = famicom->ppu.video_memory + 1024;
+	}
+	else
+	{
+		famicom->ppu.banks[8] = famicom->ppu.video_memory;
+		famicom->ppu.banks[9] = famicom->ppu.video_memory;
+		famicom->ppu.banks[10] = famicom->ppu.video_memory + 1024;
+		famicom->ppu.banks[11] = famicom->ppu.video_memory + 1024;
+	}
+
+	famicom->ppu.banks[12] = famicom->ppu.banks[9];
+	famicom->ppu.banks[13] = famicom->ppu.banks[10];
+	famicom->ppu.banks[14] = famicom->ppu.banks[11];
+	famicom->ppu.banks[15] = famicom->ppu.banks[12];
 
 	return SFC_ERROR_OK;
 }
@@ -77,6 +105,14 @@ sfc_ecode sfc_load_new_rom(sfc_famicom_t* famicom)
 		sfc_famicom_reset(famicom);
 
 	return code;
+}
+
+void sfc_do_vblank(sfc_famicom_t* famicom)
+{
+	famicom->ppu.registers.status |= SFC_PPU_FLAG_VBLANK;
+
+	if (famicom->ppu.registers.ctrl & SFC_PPU_FLAG_VBNMIE)
+		sfc_cpu_nmi(famicom);
 }
 
 sfc_ecode sfc_default_load_rom(void* argument, sfc_rom_t* rom)

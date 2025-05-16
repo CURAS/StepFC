@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,11 +128,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common\d2d_draw.cpp" />
     <ClCompile Include="main.c" />
     <ClCompile Include="sfc_6502.c" />
     <ClCompile Include="sfc_cpu.c" />
     <ClCompile Include="sfc_famicom.c" />
     <ClCompile Include="sfc_mapper.c" />
+    <ClCompile Include="sfc_ppu.c" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="nestest.nes">
@@ -139,9 +142,11 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\d2d_interface.h" />
     <ClInclude Include="sfc_6502.h" />
     <ClInclude Include="sfc_cpu.h" />
     <ClInclude Include="sfc_famicom.h" />
+    <ClInclude Include="sfc_ppu.h" />
     <ClInclude Include="sfc_rom.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

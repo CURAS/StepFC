@@ -15,6 +15,7 @@
 #define SFC_WRITE(a, v) sfc_write_cpu_address(a, v, famicom)
 #define SFC_PUSH(v) sfc_write_cpu_address(0x100 + SFC_S--, v, famicom)
 #define SFC_POP() sfc_read_cpu_address(0x100 + ++SFC_S, famicom)
+#define SFC_CHK_ZS(a) { ((a & 0xFF) == 0) ? SFC_ZF_SET : SFC_ZF_CLR; (a & 0x80) ? SFC_SF_SET : SFC_SF_CLR; }
 
 #define SFC_CF_SET (SFC_P |= (uint8_t)SFC_FLAG_C)
 #define SFC_ZF_SET (SFC_P |= (uint8_t)SFC_FLAG_Z)
@@ -195,3 +196,5 @@ static const uint8_t opmodes[256] = {
 void sfc_6502_disassembly(sfc_6502_code_t, char[SFC_DISASSEMBLY_BUF_LEN]);
 
 void sfc_cpu_execute_one(sfc_famicom_t*);
+
+void sfc_cpu_nmi(sfc_famicom_t*);

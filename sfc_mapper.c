@@ -9,6 +9,9 @@ static sfc_ecode sfc_mapper_00_reset(sfc_famicom_t* famicom)
 	famicom->prg_banks[6] = famicom->rom.prg_rom + (famicom->rom.info.count_prgrom_16kb - 1) * 16 * 1024;
 	famicom->prg_banks[7] = famicom->rom.prg_rom + (famicom->rom.info.count_prgrom_16kb - 1) * 16 * 1024 + 8 * 1024;
 
+	for (int i = 0; i < 8; ++i)
+		famicom->ppu.banks[i] = famicom->rom.chr_rom + i * 8 * 1024;
+
 	return SFC_ERROR_OK;
 }
 
