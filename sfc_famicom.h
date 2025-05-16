@@ -34,6 +34,8 @@ struct sfc_famicom {
 	sfc_mapper_t mapper;
 	sfc_ppu_t ppu;
 	sfc_cpu_register_t registers;
+	int16_t button_index_1, button_index_2;
+	uint8_t button_states[16];
 	uint8_t* prg_banks[0x10000 >> 13];
 	uint8_t save_memory[8 * 1024];
 	uint8_t main_memory[2 * 1024];

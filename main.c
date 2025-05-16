@@ -1,4 +1,3 @@
-#define SFC_NO_INPUT
 #define SFC_NO_SUBRENDER
 #define SFC_NO_SL
 
@@ -37,7 +36,7 @@ uint32_t get_pixel(unsigned x, unsigned y, const uint8_t* name_table, const uint
 	return palette_data[result];
 }
 
-extern void main_render(void* rgba)
+void main_render(void* rgba)
 {
 	uint32_t* data = rgba;
 
@@ -54,6 +53,11 @@ extern void main_render(void* rgba)
 		data[i] = get_pixel(i & 0xff, i >> 8, 
 			g_famicom->ppu.banks[8], 
 			(!(g_famicom->ppu.registers.ctrl & SFC_PPU_FLAG_BGPATN))?g_famicom->ppu.banks[0] : g_famicom->ppu.banks[4]);
+}
+
+void user_input(int index, unsigned char data)
+{
+	g_famicom->button_states[index] = data;
 }
 
 int main(int argc, char const* argv[])

@@ -39,6 +39,9 @@
     <ClCompile Include="sfc_ppu.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="sfc_addr4020.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="nestest.nes">

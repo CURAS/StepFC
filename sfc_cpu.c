@@ -6,6 +6,8 @@
 #include "sfc_6502.h"
 
 extern inline void sfc_btoh(char[], uint8_t);
+extern uint8_t sfc_read_cpu_address4020(uint16_t, sfc_famicom_t*);
+extern void sfc_write_cpu_address4020(uint16_t, uint8_t, sfc_famicom_t*);
 
 void sfc_fc_disassembly(uint16_t address, sfc_famicom_t* famicom, char buf[SFC_DISASSEMBLY_BUF_LEN2])
 {
@@ -37,7 +39,7 @@ uint8_t sfc_read_cpu_address(uint16_t address, sfc_famicom_t* famicom)
 		return sfc_read_ppu_register_via_cpu(address, &famicom->ppu);
 	case 2:
 		if (address < 0x4020)
-			;
+			return sfc_read_cpu_address4020(address, famicom);
 		else
 			assert(!"NOT IMPL");
 		return 0;
@@ -66,7 +68,7 @@ void sfc_write_cpu_address(uint16_t address, uint8_t data, sfc_famicom_t* famico
 		return;
 	case 2:
 		if (address < 0x4020)
-			;
+			sfc_write_cpu_address4020(address, data, famicom);
 		else
 			assert(!"NOT IMPL");
 		return;
