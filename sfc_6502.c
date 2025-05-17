@@ -169,17 +169,19 @@ uint16_t sfc_addressing_IND(sfc_famicom_t* famicom)
 }
 uint16_t sfc_addressing_INX(sfc_famicom_t* famicom)
 {
-	uint16_t ind_address = SFC_READ(SFC_PC++);
-	ind_address += SFC_X;
-	uint16_t address = SFC_READ(ind_address);
-	address |= SFC_READ(ind_address + 1) << 8;
+	uint8_t ind_address1 = SFC_READ(SFC_PC++);
+	ind_address1 += SFC_X;
+	uint8_t ind_address2 = ind_address1+1;
+	uint16_t address = SFC_READ(ind_address1);
+	address |= SFC_READ(ind_address2) << 8;
 	return address;
 }
 uint16_t sfc_addressing_INY(sfc_famicom_t* famicom)
 {
-	uint16_t ind_address = SFC_READ(SFC_PC++);
-	uint16_t address = SFC_READ(ind_address);
-	address |= SFC_READ(ind_address + 1) << 8;
+	uint8_t ind_address1 = SFC_READ(SFC_PC++);
+	uint8_t ind_address2 = ind_address1 + 1;
+	uint16_t address = SFC_READ(ind_address1);
+	address |= SFC_READ(ind_address2) << 8;
 	address += SFC_Y;
 	return address;
 }
