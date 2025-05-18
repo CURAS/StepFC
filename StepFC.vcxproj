@@ -150,6 +150,11 @@
     <ClInclude Include="sfc_ppu.h" />
     <ClInclude Include="sfc_rom.h" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="color_test.nes">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
