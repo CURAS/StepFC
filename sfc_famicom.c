@@ -152,11 +152,13 @@ sfc_ecode sfc_default_load_rom(void* argument, sfc_rom_t* rom)
 	rom->prg_rom = (uint8_t*)malloc(16 * 1024 * header.count_prgrom_16kb);
 	if (rom->prg_rom == NULL)
 		return SFC_ERROR_FAILED;
+	memset(rom->prg_rom, 0, 16 * 1024 * header.count_prgrom_16kb);
 	fread(rom->prg_rom, 16 * 1024, header.count_prgrom_16kb, file);
 
-	rom->chr_rom = (uint8_t*)malloc(8 * 1024 * header.count_chrrom_8kb);
+	rom->chr_rom = (uint8_t*)malloc(8 * 1024 * (header.count_chrrom_8kb || 1));
 	if (rom->chr_rom == NULL)
 		return SFC_ERROR_FAILED;
+	memset(rom->chr_rom, 0, 8 * 1024);
 	fread(rom->chr_rom, 8 * 1024, header.count_chrrom_8kb, file);
 
 	return SFC_ERROR_OK;

@@ -39,11 +39,9 @@ typedef struct {
 	uint8_t status;
 	uint8_t sprite_pt;
 	uint8_t scroll[2];
-	uint8_t scroll_pos;
 	uint16_t vram_pt;
-	uint8_t vram_pt_pos;
+	uint8_t double_write_pos;
 	uint8_t vram_cache;
-	uint8_t sprite_dma;
 } sfc_ppu_registers_t;
 
 typedef struct {

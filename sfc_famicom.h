@@ -34,6 +34,7 @@ struct sfc_famicom {
 	sfc_mapper_t mapper;
 	sfc_ppu_t ppu;
 	sfc_cpu_register_t registers;
+	uint32_t cpu_cycle_count;
 	int16_t button_index_1, button_index_2;
 	uint8_t button_states[16];
 	uint8_t* prg_banks[0x10000 >> 13];

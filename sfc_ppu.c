@@ -7,8 +7,9 @@ uint8_t sfc_read_ppu_address(uint16_t address, sfc_ppu_t* ppu)
 	address &= 0x3FFF;
 	if (address >= 0x3F00)
 	{
+		uint16_t underneath = address - 0x1000;
+		ppu->registers.vram_cache = ppu->banks[underneath >> 10][underneath & 0x3FF];
 		uint8_t palette_index = address & 0x1F;
-		ppu->registers.vram_cache = ppu->palette_indexes[palette_index];
 		return ppu->palette_indexes[palette_index];
 	}
 	else
@@ -53,12 +54,13 @@ uint8_t sfc_read_ppu_register_via_cpu(uint16_t address, sfc_ppu_t* ppu)
 	case 2:
 		data = ppu->registers.status;
 		ppu->registers.status &= (~SFC_PPU_FLAG_VBLANK);
+		ppu->registers.double_write_pos = 0;
 		break;
 	case 3:
 		assert(!"write only");
 		break;
 	case 4:
-		data = ppu->sprite_ram[ppu->registers.sprite_pt++];
+		data = ppu->sprite_ram[ppu->registers.sprite_pt];
 		break;
 	case 5:
 	case 6:
@@ -92,22 +94,15 @@ void sfc_write_ppu_register_via_cpu(uint16_t address, uint8_t data, sfc_ppu_t* p
 		ppu->sprite_ram[ppu->registers.sprite_pt++] = data;
 		break;
 	case 5:
-		ppu->registers.scroll[ppu->registers.scroll_pos++] = data;
-		ppu->registers.scroll_pos &= 0x1;
+		ppu->registers.scroll[ppu->registers.double_write_pos] = data;
+		ppu->registers.double_write_pos++;
+		ppu->registers.double_write_pos &= 0x1;
 		break;
 	case 6:
-		if (ppu->registers.vram_pt_pos == 0)
-		{
-			ppu->registers.vram_pt &= 0x00FF;
-			ppu->registers.vram_pt |= (data << 8);
-			ppu->registers.vram_pt_pos = 1;
-		}
-		else
-		{
-			ppu->registers.vram_pt &= 0xFF00;
-			ppu->registers.vram_pt |= data;
-			ppu->registers.vram_pt_pos = 0;
-		}
+		ppu->registers.vram_pt &= (0x00FF << (8 * ppu->registers.double_write_pos));
+		ppu->registers.vram_pt |= (data << (8 * (1 - ppu->registers.double_write_pos)));
+		ppu->registers.double_write_pos++;
+		ppu->registers.double_write_pos &= 0x1;
 		break;
 	case 7:
 		sfc_write_ppu_address(ppu->registers.vram_pt, data, ppu);

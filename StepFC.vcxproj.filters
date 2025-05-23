@@ -50,6 +50,9 @@
     <CopyFileToFolders Include="color_test.nes">
       <Filter>资源文件</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="spritecans.nes">
+      <Filter>资源文件</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sfc_rom.h">

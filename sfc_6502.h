@@ -193,6 +193,25 @@ static const uint8_t opmodes[256] = {
 	SFC_AM_IMM, SFC_AM_INX, SFC_AM_IMM, SFC_AM_INX, SFC_AM_ZPG, SFC_AM_ZPG, SFC_AM_ZPG, SFC_AM_ZPG, SFC_AM_IMP, SFC_AM_IMM, SFC_AM_IMP, SFC_AM_IMM, SFC_AM_ABS, SFC_AM_ABS, SFC_AM_ABS, SFC_AM_ABS, SFC_AM_REL, SFC_AM_INY, SFC_AM_UNK, SFC_AM_INY, SFC_AM_ZPX, SFC_AM_ZPX, SFC_AM_ZPX, SFC_AM_ZPX, SFC_AM_IMP, SFC_AM_ABY, SFC_AM_IMP, SFC_AM_ABY, SFC_AM_ABX, SFC_AM_ABX, SFC_AM_ABX, SFC_AM_ABX,
 };
 
+static const uint32_t opcycles_base[256] = {
+	7,6,0,8,3,3,5,5,3,2,2,2,4,4,6,6,
+	2,5,1,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	6,6,2,8,3,3,5,5,4,2,2,2,4,4,6,6,
+	2,5,3,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	6,6,4,8,3,3,5,5,3,2,2,2,3,4,6,6,
+	2,5,5,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	6,6,6,8,3,3,5,5,4,2,2,2,5,4,6,6,
+	2,5,7,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4,
+	2,6,0,6,4,4,4,4,2,5,2,5,5,5,5,5,
+	2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4,
+	2,5,0,5,4,4,4,4,2,4,2,4,4,4,4,4,
+	2,6,2,8,3,3,5,5,2,2,2,2,4,4,6,6,
+	2,5,0,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	2,6,2,8,3,3,5,5,2,2,2,2,4,4,6,6,
+	2,5,0,8,4,4,6,6,2,4,2,7,4,4,7,7,
+};
+
 void sfc_6502_disassembly(sfc_6502_code_t, char[SFC_DISASSEMBLY_BUF_LEN]);
 
 void sfc_cpu_execute_one(sfc_famicom_t*);

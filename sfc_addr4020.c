@@ -52,7 +52,18 @@ extern void sfc_write_cpu_address4020(uint16_t address, uint8_t data, sfc_famico
 	switch (address & 0x1F)
 	{
 	case 0x14:
-		memcpy(famicom->ppu.sprite_ram, (const void*)sfc_get_dma_address((uint16_t)data << 8, famicom), 256);
+		if (famicom->ppu.registers.sprite_pt)
+		{
+			int count = famicom->ppu.registers.sprite_pt;
+			memcpy(famicom->ppu.sprite_ram + count, (const void*)sfc_get_dma_address((uint16_t)data << 8, famicom), 256 - count);
+			memcpy(famicom->ppu.sprite_ram, (const void*)(sfc_get_dma_address((uint16_t)data << 8, famicom) + count), count);
+		}
+		else
+		{
+			memcpy(famicom->ppu.sprite_ram, (const void*)sfc_get_dma_address((uint16_t)data << 8, famicom), 256);
+		}
+		famicom->cpu_cycle_count += 513;
+		famicom->cpu_cycle_count += (famicom->cpu_cycle_count & 1) ? 1 : 0;
 		break;
 	case 0x16:
 		if (data & 0x1)

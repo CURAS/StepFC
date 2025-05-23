@@ -66,6 +66,11 @@ int sub_render(void* rgba)
 		data[i] = palette_data[0];
 
 	const uint8_t* pattern_table = (!(g_famicom->ppu.registers.ctrl & SFC_PPU_FLAG_SPPATN)) ? g_famicom->ppu.banks[0] : g_famicom->ppu.banks[4];
+	const uint8_t forward_8[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+	const uint8_t reverse_8[] = { 7, 6, 5, 4, 3, 2, 1, 0 };
+	const uint8_t forward_16[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+	const uint8_t reverse_16[] = { 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+
 	for (int i = 63; i >= 0; --i)
 	{
 		uint8_t* ptr = g_famicom->ppu.sprite_ram + i * 4;
@@ -77,31 +82,74 @@ int sub_render(void* rgba)
 		if (yy >= 0xEF)
 			continue;
 
-		const uint8_t* pattern_bit0 = pattern_table + 16 * ii;
-		const uint8_t* pattern_bit1 = pattern_bit0 + 8;
-
-		uint8_t pattern_bit32 = aa & 0x3;
-
-		const uint8_t forward[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-		const uint8_t reverse[] = { 7, 6, 5, 4, 3, 2, 1, 0 };
-		const uint8_t* x_dir = forward;
-		const uint8_t* y_dir = forward;
-		if (aa & 0x40)
-			x_dir = reverse;
-		if (aa & 0x80)
-			y_dir = reverse;
-
-		for (uint8_t i = 0; i < 8; i++)
+		if (g_famicom->ppu.registers.ctrl & SFC_PPU_FLAG_SPSIZE)
 		{
-			for (uint8_t j = 0; j < 8; j++)
-			{
-				uint8_t offset = i;
-				uint8_t shift = 7 - j;
-				uint8_t result = (pattern_bit0[offset] & (1 << shift)) >> shift;
-				result |= (((pattern_bit1[offset] & (1 << shift)) >> shift) << 1);
-				result |= (pattern_bit32 << 2);
+			const uint8_t* x_dir = forward_16;
+			const uint8_t* y_dir = forward_16;
+			if (aa & 0x40)
+				x_dir = reverse_16;
+			if (aa & 0x80)
+				y_dir = reverse_16;
 
-				data[(yy + 1 + y_dir[i]) * 256 + (xx + x_dir[j])] = palette_data[result];
+			pattern_table = (!(ii & 0x1)) ? g_famicom->ppu.banks[0] : g_famicom->ppu.banks[4];
+			uint8_t ii_up = ii & 0xFE;
+			uint8_t ii_down = ii | 0x01;
+
+			const uint8_t* pattern_up_bit0 = pattern_table + 16 * ii_up;
+			const uint8_t* pattern_up_bit1 = pattern_up_bit0 + 8;
+			const uint8_t* pattern_down_bit0 = pattern_table + 16 * ii_down;
+			const uint8_t* pattern_down_bit1 = pattern_down_bit0 + 8;
+			uint8_t pattern_bit32 = aa & 0x3;
+
+			for (uint8_t i = 0; i < 16; i++)
+			{
+				for (uint8_t j = 0; j < 8; j++)
+				{
+					uint8_t offset = i % 8;
+					uint8_t shift = 7 - j;
+					uint8_t result = 0;
+					if (i < 8)
+					{
+						result = (pattern_up_bit0[offset] & (1 << shift)) >> shift;
+						result |= (((pattern_up_bit1[offset] & (1 << shift)) >> shift) << 1);
+						result |= (pattern_bit32 << 2);
+					}
+					else
+					{
+						result = (pattern_down_bit0[offset] & (1 << shift)) >> shift;
+						result |= (((pattern_down_bit1[offset] & (1 << shift)) >> shift) << 1);
+						result |= (pattern_bit32 << 2);
+					}
+
+					data[(yy + 1 + y_dir[i]) * 256 + (xx + x_dir[j])] = palette_data[result];
+				}
+			}
+		}
+		else
+		{
+			const uint8_t* x_dir = forward_8;
+			const uint8_t* y_dir = forward_8;
+			if (aa & 0x40)
+				x_dir = reverse_8;
+			if (aa & 0x80)
+				y_dir = reverse_8;
+
+			const uint8_t* pattern_bit0 = pattern_table + 16 * ii;
+			const uint8_t* pattern_bit1 = pattern_bit0 + 8;
+			uint8_t pattern_bit32 = aa & 0x3;
+
+			for (uint8_t i = 0; i < 8; i++)
+			{
+				for (uint8_t j = 0; j < 8; j++)
+				{
+					uint8_t offset = i;
+					uint8_t shift = 7 - j;
+					uint8_t result = (pattern_bit0[offset] & (1 << shift)) >> shift;
+					result |= (((pattern_bit1[offset] & (1 << shift)) >> shift) << 1);
+					result |= (pattern_bit32 << 2);
+
+					data[(yy + 1 + y_dir[i]) * 256 + (xx + x_dir[j])] = palette_data[result];
+				}
 			}
 		}
 	}
